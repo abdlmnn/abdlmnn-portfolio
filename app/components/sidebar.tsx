@@ -190,7 +190,7 @@ export default function Sidebar({
 
         <div className="border-t border-line" />
 
-        <Group label="files">
+        <Group label="file">
           <Row
             name={resume.name}
             onClick={() => {
