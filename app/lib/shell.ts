@@ -91,7 +91,7 @@ export function runShellCommand(
       const out: ShellLine[] = [
         { text: "dirs", tone: "prompt", col: "left" },
         ...commands.map<ShellLine>((command, index) => ({
-          text: `  ${index === commands.length - 1 ? "└─" : "├─"} ${command.name}/   ${command.summary}`,
+          text: `  ${index === commands.length - 1 ? "└─" : "├─"} ${command.name}/`,
           tone: "muted",
           col: "left" as const,
         })),
