@@ -85,6 +85,9 @@ export function runShellCommand(
 
   switch (name) {
     case "dirs": {
+      const projectTags = [...new Set(projects.flatMap((p) => p.tags))]
+        .filter((t) => t !== "Web")
+        .sort();
       const out: ShellLine[] = [
         { text: "dirs", tone: "prompt", col: "left" },
         ...commands.map<ShellLine>((command, index) => ({
@@ -93,8 +96,8 @@ export function runShellCommand(
           col: "left" as const,
         })),
         { text: "projects", tone: "prompt", col: "right" },
-        ...projects.map<ShellLine>((project, index) => ({
-          text: `  ${index === projects.length - 1 ? "└─" : "├─"} ${project.name}`,
+        ...projectTags.map<ShellLine>((tag, index) => ({
+          text: `  ${index === projectTags.length - 1 ? "└─" : "├─"} ${tag}`,
           tone: "muted",
           col: "right" as const,
         })),
