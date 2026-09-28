@@ -62,6 +62,8 @@ export const shellCommands = [
     summary: "close this tab (exit works)",
   },
   { name: "help", args: "", summary: "print this list" },
+  { name: "agent", args: "", summary: "AI assistant for coding tasks" },
+  { name: "game", args: "", summary: "play a terminal game" },
 ] as const;
 
 export const status = {

@@ -8,7 +8,6 @@ import {
 import { applyTheme } from "../lib/theme";
 import {
   runShellCommand,
-  SHELL_FIRST_WORDS,
   SHELL_TONE_CLASS,
   type ShellLine,
 } from "../lib/shell";
@@ -173,61 +172,8 @@ export default function PaneTerminal({
     );
   }
 
-  function complete() {
-    const trailingSpace = /\s$/.test(value);
-    const tokens = value.split(/\s+/);
-    const current = trailingSpace ? "" : (tokens[tokens.length - 1] ?? "");
-    const first = tokens[0] ?? "";
-
-    let pool: string[];
-    if (tokens.length <= 1 && !trailingSpace) {
-      pool = SHELL_FIRST_WORDS;
-    } else if (
-      first === "theme" &&
-      (tokens.length === 2 || (tokens.length === 1 && trailingSpace))
-    ) {
-      pool = ["light", "dark"];
-    } else {
-      return;
-    }
-
-    const matches = pool.filter((word) => word.startsWith(current));
-    if (matches.length === 0) return;
-    if (matches.length === 1 && matches[0] === current) return;
-
-    let prefix = matches[0];
-    for (const match of matches.slice(1)) {
-      let i = 0;
-      while (i < prefix.length && prefix[i] === match[i]) i++;
-      prefix = prefix.slice(0, i);
-    }
-
-    if (prefix.length > current.length) {
-      const head = trailingSpace
-        ? value
-        : value.slice(0, value.length - current.length);
-      setValue(head + prefix);
-    } else {
-      // Ambiguous: candidates go to stdout — echoes aren't commands.
-      setTurns((prev) =>
-        [
-          ...prev,
-          {
-            id: lineId++,
-            out: stamp([
-              { text: matches.join("    "), tone: "muted" as const },
-            ]),
-          },
-        ].slice(-MAX_TURNS),
-      );
-    }
-  }
-
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      complete();
-    } else if (event.key === "ArrowUp") {
+    if (event.key === "ArrowUp") {
       event.preventDefault();
       if (!history.current.length) return;
       const next = Math.min(cursor + 1, history.current.length - 1);
@@ -251,7 +197,6 @@ export default function PaneTerminal({
     }
   }
 
-
   const lineEl = (line: Line) => (
     <p
       key={line.id}
@@ -260,8 +205,6 @@ export default function PaneTerminal({
       {line.text || " "}
     </p>
   );
-
-
 
   // Floating scroll-to-bottom button (appears when scrolled up)
   const scrollToBottomBtn = showScrollBtn && (

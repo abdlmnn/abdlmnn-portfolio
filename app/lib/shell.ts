@@ -41,21 +41,49 @@ export const SHELL_FIRST_WORDS: string[] = [
 
 /**
  * A conversational guide — the `help` response.
- * Reads like a developer walking you through the site.
+ * Organized in 3 columns for readability.
  */
 export function shellHelp(): ShellLine[] {
-  const out: ShellLine[] = [{ text: "dirs", tone: "prompt" }];
-  out.push({ text: "  show the full directory tree", tone: "muted" });
-  for (const command of commands) {
-    out.push({ text: `  ${command.name}`, tone: "prompt" });
-    out.push({ text: `    ${command.summary}`, tone: "muted" });
+  // Collect all commands with their summaries
+  const allCommands: Array<{ name: string; summary: string; isDir: boolean }> = [
+    { name: "dirs", summary: "show the full directory tree", isDir: true },
+    ...commands.map((c) => ({
+      name: c.name,
+      summary: c.summary,
+      isDir: false,
+    })),
+    ...shellCommands.map((c) => ({
+      name: `${c.name} ${c.args}`.trim(),
+      summary: c.summary,
+      isDir: false,
+    })),
+  ];
+
+  const COLS = 3;
+  const COL_WIDTH = 28;
+  const ROWS = Math.ceil(allCommands.length / COLS);
+
+  const lines: ShellLine[] = [];
+
+  for (let row = 0; row < ROWS; row++) {
+    const rowParts: string[] = [];
+    for (let col = 0; col < COLS; col++) {
+      const idx = col * ROWS + row;
+      if (idx < allCommands.length) {
+        const cmd = allCommands[idx];
+        const label = cmd.name.padEnd(20);
+        const summary = cmd.summary;
+        const line = `${label} ${summary}`;
+        rowParts.push(line.padEnd(COL_WIDTH));
+      } else {
+        rowParts.push(" ".repeat(COL_WIDTH));
+      }
+    }
+    const tone = row === 0 ? "prompt" : "text";
+    lines.push({ text: rowParts.join("  "), tone });
   }
-  for (const command of shellCommands) {
-    const signature = `${command.name} ${command.args}`.trim();
-    out.push({ text: `  ${signature}`, tone: "prompt" });
-    out.push({ text: `    ${command.summary}`, tone: "muted" });
-  }
-  return out;
+
+  return lines;
 }
 
 /**
@@ -153,6 +181,41 @@ export function runShellCommand(
 
     case "help":
       return { lines: [echo, ...shellHelp()] };
+
+    case "agent":
+      return {
+        lines: [
+          echo,
+          { text: "  AI Coding Agent", tone: "prompt" },
+          { text: "  ──────────────", tone: "muted" },
+          { text: "  Opens an AI assistant that can:", tone: "text" },
+          { text: "  • Read, write, and edit files", tone: "text" },
+          { text: "  • Run commands and tests", tone: "text" },
+          { text: "  • Search codebases and docs", tone: "text" },
+          { text: "  • Plan and execute multi-step tasks", tone: "text" },
+          { text: "", tone: "text" },
+          { text: "  Type your request naturally:", tone: "ok" },
+          { text: '  > agent "add a contact form to the site"', tone: "prompt" },
+          { text: '  > agent "fix the mobile navbar bug"', tone: "prompt" },
+          { text: '  > agent "refactor the auth module"', tone: "prompt" },
+        ],
+      };
+
+    case "game":
+      return {
+        lines: [
+          echo,
+          { text: "  Terminal Games", tone: "prompt" },
+          { text: "  ────────────", tone: "muted" },
+          { text: "  snake     — Classic snake game", tone: "text" },
+          { text: "  2048      — Slide and combine tiles", tone: "text" },
+          { text: "  tetris    — Falling blocks", tone: "text" },
+          { text: "  mines     — Minesweeper", tone: "text" },
+          { text: "", tone: "text" },
+          { text: "  Usage: game <name>", tone: "ok" },
+          { text: "  Example: game snake", tone: "prompt" },
+        ],
+      };
 
     default:
       return {

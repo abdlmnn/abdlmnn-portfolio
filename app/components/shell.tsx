@@ -73,6 +73,33 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [navOpen]);
 
+  // Tab / Shift+Tab to cycle through tabs (when not typing in an input)
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      event.preventDefault();
+      const tabsArray = tabsRef.current.filter((t) => t.kind !== "page");
+      if (tabsArray.length <= 1) return;
+      const currentIdx = tabsArray.findIndex((t) => t.id === activeTabRef.current);
+      if (currentIdx === -1) return;
+      const nextIdx = event.shiftKey
+        ? (currentIdx - 1 + tabsArray.length) % tabsArray.length
+        : (currentIdx + 1) % tabsArray.length;
+      setActiveTab(tabsArray[nextIdx].id);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   // Focus the newest shell tab, or start one — shared by the ` shortcut and
   // the sidebar's terminal button.
   const focusShell = useCallback(() => {
