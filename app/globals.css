@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/* Dark mode is driven by a data attribute, not a class, so the inline script in
+   layout.tsx can apply the stored preference before the first paint. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* `inline` keeps these as var() references so utilities follow the theme. */
+@theme inline {
+  --color-base: var(--base);
+  --color-panel: var(--panel);
+  --color-rail: var(--rail);
+  --color-raised: var(--raised);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-cyan: var(--cyan);
+  --color-ok: var(--ok);
+  --color-danger: var(--danger);
+  --color-invert-bg: var(--invert-bg);
+  --color-invert-fg: var(--invert-fg);
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+/*
+ * Solarized Osaka — https://github.com/Fausto-Korpsvart/Osaka-GTK-Theme
+ * Surfaces run down the theme's grey ramp: 650 is the lightest, 850 the darkest.
+ */
+:root {
+  color-scheme: dark;
+  --base: #001419;
+  --rail: #002029;
+  --panel: #002c38;
+  --raised: #004152;
+  --fg: #fdf5e2;
+  --muted: #7b8d8e;
+  --line: #00313d;
+  --accent: #268bd3;
+  --accent-fg: #001419;
+  --cyan: #33d6ff;
+  --ok: #849900;
+  /* The theme's red (#db302d) is only 3.9:1 on the dark base, so text uses a
+     lightened tint of the same hue to clear 4.5:1. */
+  --danger: #e05252;
+  --invert-bg: #001014;
+  --invert-fg: #fdf5e2;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --base: #f9f7f1;
+  --rail: #f3efe2;
+  --panel: #f3efe2;
+  --raised: #e7dfc5;
+  --fg: #001419;
+  --muted: #5e6d6e;
+  --line: #e1d7b7;
+  --accent: #1a6397;
+  --accent-fg: #fdf5e2;
+  --cyan: #00637a;
+  --ok: #586600;
+  --danger: #b7211f;
+  --invert-bg: #001419;
+  --invert-fg: #fdf5e2;
+}
+
+body {
+  background: var(--base);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--base);
+}
+
+/* The content pane scrolls, not the document, so smooth scrolling and the
+   scrollbar styling have to live on the pane itself. */
+.scroll-pane {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.scroll-pane::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scroll-pane::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border: 3px solid var(--base);
+  border-radius: 9999px;
+}
+
+@keyframes scroll-dot {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.animate-scroll-dot {
+  animation: scroll-dot 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-pane {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .animate-blink,
+  .animate-scroll-dot {
+    animation: none;
+  }
+}
