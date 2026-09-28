@@ -142,36 +142,35 @@ export default function Sidebar({
     >
       <div className="scroll-pane flex-1 space-y-5 overflow-y-auto px-2 py-3">
         <Group label="dirs">
-          {commands.map((command, index) => {
-            const isLastCommand = index === commands.length - 1;
-            const hasProjects = projects.length > 0;
-            return (
-              <Row
-                key={command.section}
-                name={`${command.name}/`}
-                active={command.section === active}
-                href={`#${command.section}`}
-                onClick={() => {
-                  scrollTo(command.section);
-                  onNavigate();
-                }}
-                connector={isLastCommand && !hasProjects ? "└─" : "├─"}
-              />
-            );
-          })}
-          {projects.map((project, index) => (
+          {commands.map((command, index) => (
             <Row
-              key={project.id}
-              name={project.name}
+              key={command.section}
+              name={`${command.name}/`}
+              active={command.section === active}
+              href={`#${command.section}`}
+              onClick={() => {
+                scrollTo(command.section);
+                onNavigate();
+              }}
+              connector={
+                index === commands.length - 1 ? "└─" : "├─"
+              }
+            />
+          ))}
+        </Group>
+
+        <div className="border-t border-line" />
+
+        <Group label="projects" meta={String(projectTags.length)}>
+          {projectTags.map((tag) => (
+            <Row
+              key={tag}
+              name={tag}
               dot
-              active={active === "work"}
               onClick={() => {
                 scrollTo("work");
                 onNavigate();
               }}
-              connector={
-                index === projects.length - 1 ? "└─" : "├─"
-              }
             />
           ))}
         </Group>
